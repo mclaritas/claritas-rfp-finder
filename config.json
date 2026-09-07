@@ -1,92 +1,26 @@
 {
   "keywords_high": [
-    "water quality",
-    "environmental quality",
-    "environmental monitoring",
-    "environmental management",
-    "environmental data",
-    "risk assessment",
-    "site assessment",
-    "receiving environment",
-    "receiving water",
-    "wastewater quality",
-    "stormwater quality",
-    "contaminated site",
-    "contaminated sites",
-    "groundwater quality",
-    "sediment quality",
-    "surface water quality",
-    "environmental effects monitoring",
-    "human health risk assessment",
-    "ecological risk assessment",
-    "water sampling",
-    "sediment sampling",
-    "effluent monitoring",
-    "environmental compliance",
-    "environmental investigation"
+    "water quality","environmental quality","environmental monitoring","environmental management",
+    "environmental data","risk assessment","site assessment","receiving environment","receiving water",
+    "wastewater","wastewater quality","stormwater","stormwater quality","biosolid","biosolids",
+    "contaminated site","contaminated sites","groundwater quality","sediment quality","surface water quality",
+    "environmental effects monitoring","human health risk assessment","ecological risk assessment",
+    "water sampling","sediment sampling","effluent monitoring","environmental compliance","environmental investigation"
   ],
   "keywords_medium": [
-    "sampling program",
-    "environmental assessment",
-    "environmental consulting",
-    "environmental services",
-    "contamination",
-    "remediation",
-    "pfas",
-    "groundwater monitoring",
-    "surface water monitoring",
-    "wastewater monitoring",
-    "stormwater monitoring",
-    "sediment",
-    "aquatic monitoring",
-    "water monitoring",
-    "data analysis",
-    "environmental data analysis",
-    "monitoring program",
-    "site investigation"
+    "sampling","sampling program","environmental assessment","environmental consulting","environmental services",
+    "contamination","remediation","pfas","groundwater monitoring","surface water monitoring",
+    "wastewater monitoring","stormwater monitoring","sediment","aquatic monitoring","water monitoring",
+    "data analysis","environmental data analysis","monitoring program","site investigation","effluent","sewage",
+    "sewer overflow","combined sewer overflow","sanitary sewer overflow"
   ],
   "sources": [
-    {
-      "id": "rdn",
-      "name": "Regional District of Nanaimo",
-      "url": "https://rdn.bc.ca/current-bid-opportunities",
-      "type": "html"
-    },
-    {
-      "id": "nanaimo",
-      "name": "City of Nanaimo",
-      "url": "https://nanaimo.bidsandtenders.ca/Module/Tenders/en",
-      "type": "bids"
-    },
-    {
-      "id": "portalberni",
-      "name": "City of Port Alberni",
-      "url": "https://www.portalberni.ca/bid-opportunities",
-      "type": "html"
-    },
-    {
-      "id": "cowichan",
-      "name": "Cowichan Valley Regional District",
-      "url": "https://cvrd.bonfirehub.ca/portal/?tab=openOpportunities",
-      "type": "bonfire"
-    },
-    {
-      "id": "comox",
-      "name": "Comox Valley Regional District",
-      "url": "https://comoxvalleyrd.bidsandtenders.ca/Module/Tenders/en",
-      "type": "bids"
-    },
-    {
-      "id": "bcbid",
-      "name": "BC Bid \u2014 Vancouver Island",
-      "url": "https://bcbid.gov.bc.ca/page.aspx/en/rfp/request_browse_public",
-      "type": "bcbid"
-    },
-    {
-      "id": "metrovan",
-      "name": "Metro Vancouver",
-      "url": "https://metrovancouver.bidsandtenders.ca/Module/Tenders/en/Home/BidsHomepage",
-      "type": "bids"
-    }
+    {"id":"rdn","name":"Regional District of Nanaimo","url":"https://rdn.bc.ca/current-bid-opportunities","type":"html"},
+    {"id":"nanaimo","name":"City of Nanaimo","url":"https://nanaimo.bidsandtenders.ca/Module/Tenders/en","type":"bids"},
+    {"id":"portalberni","name":"City of Port Alberni","url":"https://www.portalberni.ca/bid-opportunities","type":"html"},
+    {"id":"cowichan","name":"Cowichan Valley Regional District","url":"https://cvrd.bonfirehub.ca/portal/?tab=openOpportunities","type":"bonfire"},
+    {"id":"comox","name":"Comox Valley Regional District","url":"https://comoxvalleyrd.bidsandtenders.ca/Module/Tenders/en","type":"bids"},
+    {"id":"bcbid","name":"BC Bid — Vancouver Island","url":"https://bcbid.gov.bc.ca/page.aspx/en/rfp/request_browse_public","type":"bcbid"},
+    {"id":"metrovan","name":"Metro Vancouver","url":"https://metrovancouver.bidsandtenders.ca/Module/Tenders/en/Home/BidsHomepage","type":"bids"}
   ]
 }
