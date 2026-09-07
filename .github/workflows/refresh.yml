@@ -1,0 +1,57 @@
+name: Refresh RFP data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */3 * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm install
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run collect
+
+      - name: Commit refreshed data
+        run: |
+          git config user.name "claritas-rfp-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/results.json
+          git diff --cached --quiet || git commit -m "Refresh RFP data"
+          git push
+
+  deploy:
+    needs: collect
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
