@@ -1,5 +1,5 @@
 {
-  "refreshedAt": "2026-09-07T17:06:13.536Z",
+  "refreshedAt": "2026-09-07T17:20:59.577Z",
   "items": [
     {
       "source": "Regional District of Nanaimo",
@@ -71,9 +71,9 @@
     },
     {
       "source": "City of Nanaimo",
-      "status": "error",
-      "note": "Could not locate bids&tenders Search field",
-      "discovered": 0,
+      "status": "ok",
+      "note": "",
+      "discovered": 29,
       "relevant": 0,
       "openCount": 0,
       "closedCount": 0
@@ -98,9 +98,9 @@
     },
     {
       "source": "Comox Valley Regional District",
-      "status": "error",
-      "note": "Could not locate bids&tenders Search field",
-      "discovered": 0,
+      "status": "ok",
+      "note": "",
+      "discovered": 29,
       "relevant": 0,
       "openCount": 0,
       "closedCount": 0
@@ -108,7 +108,7 @@
     {
       "source": "BC Bid — Vancouver Island",
       "status": "limited",
-      "note": "BC Bid browser check blocked the public automation session.",
+      "note": "BC Bid browser check did not clear within 35 seconds.",
       "discovered": 0,
       "relevant": 0,
       "openCount": 0,
@@ -116,9 +116,9 @@
     },
     {
       "source": "Metro Vancouver",
-      "status": "error",
-      "note": "Metro Vancouver search field not found",
-      "discovered": 0,
+      "status": "ok",
+      "note": "",
+      "discovered": 30,
       "relevant": 0,
       "openCount": 0,
       "closedCount": 0
