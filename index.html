@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claritas RFP Finder</title><style>
+body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f5f7f8;color:#1f2933}.wrap{max-width:1180px;margin:auto;padding:28px 18px 60px}
+h1{margin:0}.sub{color:#66737d;margin:6px 0 22px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+button,input,select{font:inherit;padding:10px 12px;border:1px solid #ccd4d9;border-radius:6px;background:#fff}button{background:#173f4f;color:#fff;font-weight:700;cursor:pointer}
+.summary{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.box{background:#fff;border:1px solid #dce3e7;border-radius:8px;padding:10px 14px}
+.card{background:#fff;border:1px solid #dce3e7;border-radius:9px;padding:16px;margin:11px 0}.card h2{font-size:18px;margin:6px 0}.card a{color:#173f4f}
+.meta{font-size:13px;color:#66737d}.tag{display:inline-block;background:#edf1f2;border-radius:12px;padding:4px 8px;font-size:12px;margin:8px 5px 0 0}
+.high{color:#18794e;font-weight:700}.med{color:#9a6700;font-weight:700}.ok{color:#18794e}.limited{color:#9a6700}.error{color:#b42318}
+details{background:#fff;border:1px solid #dce3e7;border-radius:8px;padding:12px;margin-top:20px}
+</style></head><body><div class="wrap"><h1>Claritas RFP Finder</h1>
+<div class="sub">Environmental quality, monitoring, assessment, risk and management opportunities</div>
+<div class="toolbar"><button onclick="loadData(true)">Reload latest data</button><input id="q" oninput="render()" placeholder="Search results">
+<select id="threshold" onchange="render()"><option value="20">All relevant</option><option value="50">Good matches</option><option value="70" selected>Strong matches</option></select></div>
+<div class="summary"><div class="box"><b id="count">0</b> displayed</div><div class="box"><b id="strong">0</b> strong matches</div><div class="box" id="stamp">Loading…</div></div>
+<div id="msg" class="sub">Loading latest collected data…</div><div id="list"></div>
+<details><summary><b>Source status</b></summary><div id="status"></div></details></div>
+<script>
+let DB={items:[],statuses:[],refreshedAt:null};
+function esc(s){return (s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+async function loadData(manual=false){
+ try{const r=await fetch('data/results.json?t='+Date.now(),{cache:'no-store'});DB=await r.json();localStorage.setItem('claritas_rfp',JSON.stringify(DB));msg.textContent=manual?'Latest collected data reloaded.':'';render()}
+ catch(e){msg.textContent='Could not load current data: '+e.message}
+}
+function render(){
+ const q=document.getElementById('q').value.toLowerCase(),min=+document.getElementById('threshold').value;
+ const rows=(DB.items||[]).filter(x=>x.score>=min&&(!q||(x.title+' '+x.source+' '+x.description+' '+(x.matches||[]).join(' ')).toLowerCase().includes(q)));
+ document.getElementById('count').textContent=rows.length;document.getElementById('strong').textContent=(DB.items||[]).filter(x=>x.score>=70).length;
+ document.getElementById('stamp').textContent=DB.refreshedAt?'Collected: '+new Date(DB.refreshedAt).toLocaleString():'No collection yet';
+ document.getElementById('list').innerHTML=rows.length?rows.map(x=>`<div class="card"><div class="${x.score>=70?'high':'med'}">${x.score}% fit</div><h2><a href="${esc(x.url)}" target="_blank">${esc(x.title)}</a></h2><div class="meta">${esc(x.source)}</div><div>${(x.matches||[]).map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div></div>`).join(''):'<p>No opportunities meet this threshold.</p>';
+ document.getElementById('status').innerHTML=(DB.statuses||[]).map(s=>`<p><span class="${esc(s.status)}"><b>${esc(s.source)}</b></span>: ${s.count||0} relevant opportunities${s.note?' — '+esc(s.note):''}</p>`).join('');
+}
+try{const c=JSON.parse(localStorage.getItem('claritas_rfp')||'null');if(c){DB=c;render()}}catch{}
+loadData(false);
+</script></body></html>
