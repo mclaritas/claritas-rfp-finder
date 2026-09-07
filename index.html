@@ -12,9 +12,12 @@ button,input,select{font:inherit;padding:10px 12px;border:1px solid #ccd4d9;bord
 details{background:#fff;border:1px solid #dce3e7;border-radius:8px;padding:12px;margin-top:20px}
 </style></head><body><div class="wrap"><h1>Claritas RFP Finder</h1>
 <div class="sub">Environmental quality, monitoring, assessment, risk and management opportunities</div>
-<div class="toolbar"><button onclick="loadData(true)">Reload latest data</button><input id="q" oninput="render()" placeholder="Search results">
+<div class="toolbar">
+<button onclick="loadData(true)">Reload latest data</button>
+<input id="q" oninput="render()" placeholder="Search results">
 <select id="threshold" onchange="render()"><option value="20" selected>All relevant</option><option value="50">Good matches</option><option value="70">Strong matches</option></select>
-<select id="statusFilter" onchange="render()"><option value="open">Confirmed open only</option><option value="active" selected>Open + status unknown</option><option value="all">All incl. closed</option></select></div>
+<select id="statusFilter" onchange="render()"><option value="open">Confirmed open only</option><option value="active" selected>Open + status unknown</option><option value="all">All incl. closed</option></select>
+</div>
 <div class="summary"><div class="box"><b id="count">0</b> displayed</div><div class="box"><b id="openCount">0</b> confirmed open</div><div class="box"><b id="strong">0</b> strong active matches</div><div class="box" id="stamp">Loading…</div></div>
 <div id="warnings"></div><div id="msg" class="sub">Loading latest collected data…</div><div id="list"></div>
 <details><summary><b>Source status</b></summary><div id="status"></div></details></div>
@@ -47,15 +50,16 @@ function render(){
 
  document.getElementById('list').innerHTML=rows.length?rows.map(x=>{
    const title=goodUrl(x.url)?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>`:esc(x.title);
-   const dates=[
-      x.openDate?`<span>Opened/Posted: ${esc(x.openDate)}</span>`:'',
-      x.closing?`<span>Closes: ${esc(x.closing)}</span>`:''
-   ].join('');
    return `<div class="card">
      <div class="${x.score>=70?'high':'med'}">${x.score}% fit</div>
      ${x.bidNumber?`<div class="bidnum">${esc(x.bidNumber)}</div>`:''}
      <h2>${title}</h2>
-     <div class="meta"><span>${esc(x.source)}</span><span class="status-${esc(x.status||'unknown')}">${esc(x.status||'unknown')}</span>${dates}</div>
+     <div class="meta">
+       <span>${esc(x.source)}</span>
+       <span class="status-${esc(x.status||'unknown')}">${esc(x.status||'unknown')}</span>
+       ${x.openDate?`<span>Opened/Posted: ${esc(x.openDate)}</span>`:''}
+       ${x.closing?`<span>Closes: ${esc(x.closing)}</span>`:''}
+     </div>
      <div>${(x.matches||[]).map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div>
    </div>`;
  }).join(''):'<p>No opportunities meet this threshold/status filter.</p>';
