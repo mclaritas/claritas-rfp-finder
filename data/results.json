@@ -1,6 +1,43 @@
 {
-  "refreshedAt": "2026-09-07T17:20:59.577Z",
+  "refreshedAt": "2026-09-07T17:31:03.870Z",
   "items": [
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"biosolids management\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "biosolids management",
+      "description": "biosolids management ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "biosolids management"
+      ],
+      "score": 84,
+      "matches": [
+        "biosolid",
+        "biosolids",
+        "biosolids management"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"biosolids\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "biosolids",
+      "description": "biosolids ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "biosolids"
+      ],
+      "score": 56,
+      "matches": [
+        "biosolid",
+        "biosolids"
+      ]
+    },
     {
       "source": "Regional District of Nanaimo",
       "sourceId": "rdn",
@@ -13,6 +50,246 @@
       "score": 28,
       "matches": [
         "water quality"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"water quality\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "water quality",
+      "description": "water quality ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "water quality"
+      ],
+      "score": 28,
+      "matches": [
+        "water quality"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"environmental quality\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "environmental quality",
+      "description": "environmental quality ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "environmental quality"
+      ],
+      "score": 28,
+      "matches": [
+        "environmental quality"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"environmental monitoring\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "environmental monitoring",
+      "description": "environmental monitoring ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "environmental monitoring"
+      ],
+      "score": 28,
+      "matches": [
+        "environmental monitoring"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"environmental management\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "environmental management",
+      "description": "environmental management ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "environmental management"
+      ],
+      "score": 28,
+      "matches": [
+        "environmental management"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"environmental data\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "environmental data",
+      "description": "environmental data ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "environmental data"
+      ],
+      "score": 28,
+      "matches": [
+        "environmental data"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"risk assessment\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "risk assessment",
+      "description": "risk assessment ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "risk assessment"
+      ],
+      "score": 28,
+      "matches": [
+        "risk assessment"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"site assessment\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "site assessment",
+      "description": "site assessment ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "site assessment"
+      ],
+      "score": 28,
+      "matches": [
+        "site assessment"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"receiving environment\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "receiving environment",
+      "description": "receiving environment ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "receiving environment"
+      ],
+      "score": 28,
+      "matches": [
+        "receiving environment"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"receiving water\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "receiving water",
+      "description": "receiving water ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "receiving water"
+      ],
+      "score": 28,
+      "matches": [
+        "receiving water"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"wastewater\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "wastewater",
+      "description": "wastewater ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "wastewater"
+      ],
+      "score": 28,
+      "matches": [
+        "wastewater"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"stormwater\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "stormwater",
+      "description": "stormwater ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "stormwater"
+      ],
+      "score": 28,
+      "matches": [
+        "stormwater"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"biosolid\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "biosolid",
+      "description": "biosolid ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "biosolid"
+      ],
+      "score": 28,
+      "matches": [
+        "biosolid"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"combined sewer overflow\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "combined sewer overflow",
+      "description": "combined sewer overflow ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "combined sewer overflow"
+      ],
+      "score": 24,
+      "matches": [
+        "sewer overflow",
+        "combined sewer overflow"
+      ]
+    },
+    {
+      "source": "Metro Vancouver",
+      "sourceId": "metrovan",
+      "url": "/copilotsearch?q=site:metrovancouver.bidsandtenders.ca \"/Tender/Detail/\" \"sanitary sewer overflow\"&form=CSBSBX",
+      "bidNumber": "",
+      "title": "sanitary sewer overflow",
+      "description": "sanitary sewer overflow ",
+      "closing": "",
+      "status": "unknown",
+      "discoveredBy": [
+        "sanitary sewer overflow"
+      ],
+      "score": 24,
+      "matches": [
+        "sewer overflow",
+        "sanitary sewer overflow"
       ]
     },
     {
@@ -108,7 +385,7 @@
     {
       "source": "BC Bid — Vancouver Island",
       "status": "limited",
-      "note": "BC Bid browser check did not clear within 35 seconds.",
+      "note": "No indexed BC Bid matches found in this run. BC Bid browser challenge is bypassed using indexed public discovery.",
       "discovered": 0,
       "relevant": 0,
       "openCount": 0,
@@ -118,8 +395,8 @@
       "source": "Metro Vancouver",
       "status": "ok",
       "note": "",
-      "discovered": 30,
-      "relevant": 0,
+      "discovered": 29,
+      "relevant": 16,
       "openCount": 0,
       "closedCount": 0
     }
