@@ -33,17 +33,37 @@ function inferStatus(text=''){
   if(/\bopen\b|accepting submissions|in progress|posted/.test(t)) return 'open';
   return 'unknown';
 }
-function extractClosing(text=''){
-  for(const p of [
-    /(?:Bid Closing Date|Closing Date|Closing|Closes)\s*[:\-]?\s*([A-Za-z]{3,9}\s+\d{1,2},\s+\d{4}(?:[^|]{0,25})?)/i,
-    /(?:Bid Closing Date|Closing Date|Closing|Closes)\s*[:\-]?\s*(\d{4}-\d{2}-\d{2}(?:[^|]{0,25})?)/i
-  ]){const m=text.match(p);if(m)return clean(m[1]);}
+function extractDate(text='', kind='closing'){
+  const labels = kind==='opening'
+    ? '(?:Bid Open Date|Open Date|Opening Date|Posted Date|Issue Date|Published Date|Publication Date|Opportunity Open Date)'
+    : '(?:Bid Closing Date|Closing Date|Close Date|Closing|Closes|Opportunity Close Date)';
+  const pats=[
+    new RegExp(labels+'\\s*[:\\-]?\\s*([A-Za-z]{3,9}\\s+\\d{1,2},\\s+\\d{4}(?:[^|]{0,30})?)','i'),
+    new RegExp(labels+'\\s*[:\\-]?\\s*(\\d{4}-\\d{2}-\\d{2}(?:[^|]{0,30})?)','i'),
+    new RegExp(labels+'\\s*[:\\-]?\\s*(\\d{1,2}[\\/\\-]\\d{1,2}[\\/\\-]\\d{2,4}(?:[^|]{0,30})?)','i')
+  ];
+  for(const p of pats){const m=text.match(p);if(m)return clean(m[1]);}
   return '';
+}
+function validHttpUrl(href,hostContains=''){
+  try{
+    if(!/^https?:\/\//i.test(href)) return false;
+    const u=new URL(href);
+    if(hostContains && !u.hostname.includes(hostContains)) return false;
+    if(/copilotsearch|google\.com\/search|bing\.com\/search/i.test(u.href)) return false;
+    return true;
+  }catch{return false}
 }
 function mergeScores(listing,detail){
   const title=detail.title||listing.title;
   const description=(listing.description||'')+' '+(detail.description||'');
-  return {...listing,...detail,title,description,...score({title,description})};
+  return {
+    ...listing,...detail,
+    title,description,
+    openDate:detail.openDate||listing.openDate||'',
+    closing:detail.closing||listing.closing||'',
+    ...score({title,description})
+  };
 }
 
 async function htmlSource(s){
@@ -58,7 +78,14 @@ async function htmlSource(s){
     if(!title||title.length<8)return;
     let url=s.url; try{if(a.attr('href'))url=new URL(a.attr('href'),s.url).toString()}catch{}
     const description=cells.join(' | ');
-    out.push({source:s.name,sourceId:s.id,bidNumber:parseBidNumber(title+' '+description),title,description,url,closing:extractClosing(description),status:inferStatus(title+' '+description),...score({title,description})});
+    out.push({
+      source:s.name,sourceId:s.id,bidNumber:parseBidNumber(title+' '+description),
+      title,description,url,
+      openDate:extractDate(description,'opening'),
+      closing:extractDate(description,'closing'),
+      status:inferStatus(title+' '+description),
+      ...score({title,description})
+    });
   });
   return out;
 }
@@ -82,14 +109,13 @@ async function searchEngineLinks(domain,terms){
           $('a').each((_,a)=>{
             let href=$(a).attr('href')||'';
             if(href.startsWith('/url?q='))href=decodeURIComponent(href.slice(7).split('&')[0]);
-            if(!href.includes(domain))return;
+            if(!validHttpUrl(href,domain))return;
             if(!href.includes('/Tender/Detail/'))return;
             const title=clean($(a).text())||term;
             const context=clean($(a).parent().text());
             found.set(href,{url:href,title,description:context||title,discoveredBy:[term]});
           });
         }catch{}
-        if(found.size)break;
       }
     }
   }
@@ -102,7 +128,6 @@ async function portalListingLinks(s,browser){
   try{
     await page.goto(s.url,{waitUntil:'domcontentloaded',timeout:45000});
     await page.waitForTimeout(5000);
-
     for(let p=0;p<10;p++){
       const rows=await page.locator('a[href*="/Tender/Detail/"]').evaluateAll(as=>as.map(a=>({
         href:a.href,
@@ -110,11 +135,17 @@ async function portalListingLinks(s,browser){
         context:(a.closest('tr')?.innerText||a.closest('[role=row]')?.innerText||a.parentElement?.parentElement?.innerText||'').trim()
       })));
       for(const x of rows){
-        if(!x.href)continue;
-        const base={source:s.name,sourceId:s.id,url:x.href,bidNumber:parseBidNumber(x.title+' '+x.context),title:clean(x.title),description:clean(x.context),closing:extractClosing(x.context),status:inferStatus(x.context),discoveredBy:['portal']};
+        if(!validHttpUrl(x.href,new URL(s.url).hostname))continue;
+        const base={
+          source:s.name,sourceId:s.id,url:x.href,
+          bidNumber:parseBidNumber(x.title+' '+x.context),
+          title:clean(x.title),description:clean(x.context),
+          openDate:extractDate(x.context,'opening'),
+          closing:extractDate(x.context,'closing'),
+          status:inferStatus(x.context),discoveredBy:['portal']
+        };
         found.set(x.href,{...base,...score(base)});
       }
-
       const next=page.locator('[aria-label*="Next" i]:visible,button:has-text("Next Page"):visible,a:has-text("Next Page"):visible').first();
       try{
         if(!(await next.count())||!(await next.isVisible())||!(await next.isEnabled()))break;
@@ -127,10 +158,18 @@ async function portalListingLinks(s,browser){
 
 async function bidsListingFirst(s,browser){
   const portal=await portalListingLinks(s,browser);
-  const web=await searchEngineLinks(new URL(s.url).hostname,SEARCH);
+  const domain=new URL(s.url).hostname;
+  const web=await searchEngineLinks(domain,SEARCH);
   for(const [u,x] of web.entries()){
     if(!portal.has(u)){
-      const base={source:s.name,sourceId:s.id,url:u,bidNumber:parseBidNumber(x.title+' '+x.description),title:x.title,description:x.description,closing:'',status:'unknown',discoveredBy:x.discoveredBy};
+      const base={
+        source:s.name,sourceId:s.id,url:u,
+        bidNumber:parseBidNumber(x.title+' '+x.description),
+        title:x.title,description:x.description,
+        openDate:extractDate(x.description,'opening'),
+        closing:extractDate(x.description,'closing'),
+        status:'unknown',discoveredBy:x.discoveredBy
+      };
       portal.set(u,{...base,...score(base)});
     }
   }
@@ -148,7 +187,8 @@ async function bidsListingFirst(s,browser){
           bidNumber:parseBidNumber(body)||item.bidNumber,
           title:(body.match(/Bid Name:\s*([^\n\r]+)/i)||[])[1]||item.title,
           description:body.slice(0,22000),
-          closing:extractClosing(body)||item.closing,
+          openDate:extractDate(body,'opening')||item.openDate,
+          closing:extractDate(body,'closing')||item.closing,
           status:inferStatus(body)!=='unknown'?inferStatus(body):item.status
         };
       }catch{}
@@ -162,13 +202,22 @@ async function bonfireSource(s,browser){
   const page=await browser.newPage({viewport:{width:1400,height:1200}});
   try{
     await page.goto(s.url,{waitUntil:'domcontentloaded',timeout:45000});await page.waitForTimeout(7000);
-    const rows=await page.locator('a').evaluateAll(as=>as.map(a=>({title:(a.innerText||'').trim(),href:a.href,context:(a.closest('tr')?.innerText||a.closest('[role=row]')?.innerText||a.parentElement?.parentElement?.innerText||'').trim()})));
+    const rows=await page.locator('a').evaluateAll(as=>as.map(a=>({
+      title:(a.innerText||'').trim(),href:a.href,
+      context:(a.closest('tr')?.innerText||a.closest('[role=row]')?.innerText||a.parentElement?.parentElement?.innerText||'').trim()
+    })));
     const out=[];
     for(const x of rows){
-      if(x.title.length<8||!/^https?:/.test(x.href))continue;
+      if(x.title.length<8||!validHttpUrl(x.href))continue;
       const text=(x.href+' '+x.context).toLowerCase();
       if(!/opportun|project|portal/.test(text)||out.some(y=>y.url===x.href))continue;
-      const base={source:s.name,sourceId:s.id,bidNumber:parseBidNumber(x.context+' '+x.title),title:clean(x.title),description:clean(x.context),url:x.href,closing:extractClosing(x.context),status:inferStatus(x.context)};
+      const base={
+        source:s.name,sourceId:s.id,bidNumber:parseBidNumber(x.context+' '+x.title),
+        title:clean(x.title),description:clean(x.context),url:x.href,
+        openDate:extractDate(x.context,'opening'),
+        closing:extractDate(x.context,'closing'),
+        status:inferStatus(x.context)
+      };
       out.push({...base,...score(base)});
     }
     return out;
@@ -177,14 +226,9 @@ async function bonfireSource(s,browser){
 
 async function bcbidIndexed(s){
   const found=new Map();
-
-  // Broad environmental terms scoped to BC Bid.
   const broad=['biosolid','biosolids','wastewater','stormwater','environmental','sampling','risk assessment','water quality','remediation','PFAS','groundwater','sediment','effluent'];
   const queries=[];
-  for(const term of broad){
-    queries.push(`site:bcbid.gov.bc.ca "${term}" "Vancouver Island"`);
-  }
-  // Organization-specific passes, including Victoria/CRD.
+  for(const term of broad) queries.push(`site:bcbid.gov.bc.ca "${term}" "Vancouver Island"`);
   for(const org of BCORGS){
     for(const term of ['environmental','wastewater','stormwater','biosolid','sampling','risk assessment','water quality','remediation']){
       queries.push(`site:bcbid.gov.bc.ca "${org}" "${term}"`);
@@ -203,10 +247,17 @@ async function bcbidIndexed(s){
         $('a').each((_,a)=>{
           let href=$(a).attr('href')||'';
           if(href.startsWith('/url?q='))href=decodeURIComponent(href.slice(7).split('&')[0]);
-          if(!href.includes('bcbid.gov.bc.ca'))return;
+          if(!validHttpUrl(href,'bcbid.gov.bc.ca'))return;
+
           const title=clean($(a).text());
           const snippet=clean($(a).parent().parent().text())||clean($(a).parent().text())||title;
-          const base={source:s.name,sourceId:s.id,bidNumber:parseBidNumber(title+' '+snippet),title:title||snippet.slice(0,180),description:snippet,url:href,closing:extractClosing(snippet),status:inferStatus(snippet)};
+          const base={
+            source:s.name,sourceId:s.id,bidNumber:parseBidNumber(title+' '+snippet),
+            title:title||snippet.slice(0,180),description:snippet,url:href,
+            openDate:extractDate(snippet,'opening'),
+            closing:extractDate(snippet,'closing'),
+            status:inferStatus(snippet)
+          };
           const sc=score(base);
           if(sc.score>=20){
             const key=(href+'|'+base.bidNumber+'|'+base.title).toLowerCase();
@@ -214,10 +265,8 @@ async function bcbidIndexed(s){
           }
         });
       }catch{}
-      if(found.size)break;
     }
   }
-
   return [...found.values()];
 }
 
@@ -231,11 +280,17 @@ for(const s of cfg.sources){
     else if(s.type==='bonfire')rows=await bonfireSource(s,browser);
     else if(s.type==='bcbid_indexed'){
       rows=await bcbidIndexed(s);
-      if(!rows.length)note='No indexed BC Bid matches found in this run. BC Bid browser challenge is bypassed using indexed public discovery.';
+      if(!rows.length)note='No verified indexed BC Bid matches found in this run.';
     }
+    rows=rows.filter(x=>validHttpUrl(x.url));
     const relevant=rows.filter(x=>x.score>=20);
     items.push(...relevant);
-    statuses.push({source:s.name,status:note?'limited':'ok',note,discovered:rows.length,relevant:relevant.length,openCount:relevant.filter(x=>x.status==='open').length,closedCount:relevant.filter(x=>x.status==='closed').length});
+    statuses.push({
+      source:s.name,status:note?'limited':'ok',note,
+      discovered:rows.length,relevant:relevant.length,
+      openCount:relevant.filter(x=>x.status==='open').length,
+      closedCount:relevant.filter(x=>x.status==='closed').length
+    });
   }catch(e){
     statuses.push({source:s.name,status:'error',note:String(e.message||e),discovered:0,relevant:0,openCount:0,closedCount:0});
   }
