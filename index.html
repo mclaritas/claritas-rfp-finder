@@ -14,7 +14,7 @@ details{background:#fff;border:1px solid #dce3e7;border-radius:8px;padding:12px;
 <div class="sub">Environmental quality, monitoring, assessment, risk and management opportunities</div>
 <div class="toolbar"><button onclick="loadData(true)">Reload latest data</button><input id="q" oninput="render()" placeholder="Search results">
 <select id="threshold" onchange="render()"><option value="20">All relevant</option><option value="50" selected>Good matches</option><option value="70">Strong matches</option></select>
-<select id="statusFilter" onchange="render()"><option value="open">Open only</option><option value="active" selected>Open + status unknown</option><option value="all">All incl. closed</option></select></div>
+<select id="statusFilter" onchange="render()"><option value="open">Confirmed open only</option><option value="active" selected>Open + status unknown</option><option value="all">All incl. closed</option></select></div>
 <div class="summary"><div class="box"><b id="count">0</b> displayed</div><div class="box"><b id="openCount">0</b> confirmed open</div><div class="box"><b id="strong">0</b> strong active matches</div><div class="box" id="stamp">Loading…</div></div>
 <div id="warnings"></div><div id="msg" class="sub">Loading latest collected data…</div><div id="list"></div>
 <details><summary><b>Source status</b></summary><div id="status"></div></details></div>
@@ -31,7 +31,7 @@ function render(){
  const bad=(DB.statuses||[]).filter(s=>s.status!=='ok');
  document.getElementById('warnings').innerHTML=bad.length?`<div class="warning"><b>Collector notice:</b> ${bad.map(s=>esc(s.source)+': '+esc(s.note||s.status)).join(' | ')}</div>`:'';
  document.getElementById('list').innerHTML=rows.length?rows.map(x=>`<div class="card"><div class="${x.score>=70?'high':'med'}">${x.score}% fit</div>${x.bidNumber?`<div class="bidnum">${esc(x.bidNumber)}</div>`:''}<h2><a href="${esc(x.url)}" target="_blank">${esc(x.title)}</a></h2><div class="meta"><span>${esc(x.source)}</span><span class="status-${esc(x.status||'unknown')}">${esc(x.status||'unknown')}</span>${x.closing?`<span>Closing: ${esc(x.closing)}</span>`:''}</div><div>${(x.matches||[]).map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div></div>`).join(''):'<p>No opportunities meet this threshold/status filter.</p>';
- document.getElementById('status').innerHTML=(DB.statuses||[]).map(s=>`<p><span class="${esc(s.status)}"><b>${esc(s.source)}</b></span>: ${s.relevant??s.count??0} relevant, ${s.openCount||0} open${s.note?' — '+esc(s.note):''}</p>`).join('');
+ document.getElementById('status').innerHTML=(DB.statuses||[]).map(s=>`<p><span class="${esc(s.status)}"><b>${esc(s.source)}</b></span>: ${s.relevant??s.count??0} relevant, ${s.openCount||0} confirmed open${s.note?' — '+esc(s.note):''}</p>`).join('');
 }
 try{const c=JSON.parse(localStorage.getItem('claritas_rfp')||'null');if(c){DB=c;render()}}catch{}
 loadData(false);
