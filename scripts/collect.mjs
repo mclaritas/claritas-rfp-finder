@@ -22,7 +22,7 @@ function score(x){
 }
 function parseBidNumber(text=''){
   for(const p of [
-    /\b(?:Bid Number|Bid No\.?|Solicitation Number|RFP No\.?|Tender No\.?|Opportunity ID)\s*[:#-]?\s*([A-Z0-9][A-Z0-9\-\/]{2,})/i,
+    /\b(?:Bid Number|Bid No\.?|Solicitation Number|Solicitation No\.?|Reference Number|RFP No\.?|Tender No\.?|Opportunity ID)\s*[:#-]?\s*([A-Z0-9][A-Z0-9\-\/]{2,})/i,
     /\b(\d{2}-\d{3,4})\b/
   ]){const m=text.match(p);if(m)return clean(m[1]);}
   return '';
@@ -30,45 +30,70 @@ function parseBidNumber(text=''){
 function inferStatus(text=''){
   const t=text.toLowerCase();
   if(/awarded|closed|cancelled|canceled|expired|completed/.test(t)) return 'closed';
-  if(/\bopen\b|accepting submissions|in progress|posted/.test(t)) return 'open';
+  if(/\bopen\b|this solicitation is open|accepting submissions|in progress|posted/.test(t)) return 'open';
   return 'unknown';
 }
 function extractDate(text='', kind='closing'){
-  const labels = kind==='opening'
-    ? '(?:Bid Open Date|Open Date|Opening Date|Posted Date|Issue Date|Published Date|Publication Date|Opportunity Open Date)'
+  const labels=kind==='opening'
+    ? '(?:Bid Open Date|Open Date|Opening Date|Posted Date|Issue Date|Published Date|Publication Date|Publication|Opportunity Open Date)'
     : '(?:Bid Closing Date|Closing Date|Close Date|Closing|Closes|Opportunity Close Date)';
   const pats=[
-    new RegExp(labels+'\\s*[:\\-]?\\s*([A-Za-z]{3,9}\\s+\\d{1,2},\\s+\\d{4}(?:[^|]{0,30})?)','i'),
-    new RegExp(labels+'\\s*[:\\-]?\\s*(\\d{4}-\\d{2}-\\d{2}(?:[^|]{0,30})?)','i'),
-    new RegExp(labels+'\\s*[:\\-]?\\s*(\\d{1,2}[\\/\\-]\\d{1,2}[\\/\\-]\\d{2,4}(?:[^|]{0,30})?)','i')
+    new RegExp(labels+'\\s*[:\\-]?\\s*([A-Za-z]{3,9}\\s+\\d{1,2},\\s+\\d{4}(?:[^|\\n\\r]{0,32})?)','i'),
+    new RegExp(labels+'\\s*[:\\-]?\\s*(\\d{4}[\\/\\-]\\d{1,2}[\\/\\-]\\d{1,2}(?:[^|\\n\\r]{0,32})?)','i'),
+    new RegExp(labels+'\\s*[:\\-]?\\s*(\\d{1,2}[\\/\\-]\\d{1,2}[\\/\\-]\\d{2,4}(?:[^|\\n\\r]{0,32})?)','i')
   ];
   for(const p of pats){const m=text.match(p);if(m)return clean(m[1]);}
   return '';
 }
 function validHttpUrl(href,hostContains=''){
   try{
-    if(!/^https?:\/\//i.test(href)) return false;
+    if(!/^https?:\/\//i.test(href))return false;
     const u=new URL(href);
-    if(hostContains && !u.hostname.includes(hostContains)) return false;
-    if(/copilotsearch|google\.com\/search|bing\.com\/search/i.test(u.href)) return false;
+    if(hostContains && !u.hostname.includes(hostContains))return false;
+    if(/bing\.com\/search|google\.com\/search|copilotsearch/i.test(u.href))return false;
     return true;
   }catch{return false}
+}
+function baseItem(s,url,title,description){
+  return {
+    source:s.name,sourceId:s.id,url,
+    bidNumber:parseBidNumber(title+' '+description),
+    title:clean(title),description:clean(description),
+    openDate:extractDate(description,'opening'),
+    closing:extractDate(description,'closing'),
+    status:inferStatus(title+' '+description)
+  };
 }
 function mergeScores(listing,detail){
   const title=detail.title||listing.title;
   const description=(listing.description||'')+' '+(detail.description||'');
   return {
-    ...listing,...detail,
-    title,description,
+    ...listing,...detail,title,description,
+    bidNumber:detail.bidNumber||listing.bidNumber||parseBidNumber(title+' '+description),
     openDate:detail.openDate||listing.openDate||'',
     closing:detail.closing||listing.closing||'',
+    status:detail.status&&detail.status!=='unknown'?detail.status:listing.status,
     ...score({title,description})
   };
 }
 
+async function bingRss(query){
+  const url=`https://www.bing.com/search?format=rss&q=${encodeURIComponent(query)}`;
+  try{
+    const r=await fetch(url,{headers:{'user-agent':'Mozilla/5.0'}});
+    if(!r.ok)return [];
+    const xml=await r.text(),$=cheerio.load(xml,{xmlMode:true});
+    return $('item').map((_,it)=>({
+      title:clean($(it).find('title').text()),
+      link:clean($(it).find('link').text()),
+      description:clean($(it).find('description').text())
+    })).get();
+  }catch{return []}
+}
+
 async function htmlSource(s){
   const r=await fetch(s.url,{headers:{'user-agent':'Mozilla/5.0'}});
-  if(!r.ok) throw new Error(`HTTP ${r.status}`);
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
   const html=await r.text(),$=cheerio.load(html),out=[];
   $('table tr').each((_,tr)=>{
     const cells=$(tr).find('td').map((i,x)=>clean($(x).text())).get();
@@ -76,50 +101,12 @@ async function htmlSource(s){
     const a=$(tr).find('a').first();
     const title=clean(a.text())||cells.slice().sort((a,b)=>b.length-a.length)[0];
     if(!title||title.length<8)return;
-    let url=s.url; try{if(a.attr('href'))url=new URL(a.attr('href'),s.url).toString()}catch{}
+    let url=s.url;try{if(a.attr('href'))url=new URL(a.attr('href'),s.url).toString()}catch{}
     const description=cells.join(' | ');
-    out.push({
-      source:s.name,sourceId:s.id,bidNumber:parseBidNumber(title+' '+description),
-      title,description,url,
-      openDate:extractDate(description,'opening'),
-      closing:extractDate(description,'closing'),
-      status:inferStatus(title+' '+description),
-      ...score({title,description})
-    });
+    const base=baseItem(s,url,title,description);
+    out.push({...base,...score(base)});
   });
   return out;
-}
-
-async function searchEngineLinks(domain,terms){
-  const found=new Map();
-  for(const term of terms){
-    const queries=[
-      `site:${domain} "/Tender/Detail/" "${term}"`,
-      `site:${domain} "${term}" bids and tenders`
-    ];
-    for(const q of queries){
-      for(const engine of [
-        `https://www.google.com/search?q=${encodeURIComponent(q)}`,
-        `https://www.bing.com/search?q=${encodeURIComponent(q)}`
-      ]){
-        try{
-          const r=await fetch(engine,{headers:{'user-agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/153 Safari/537.36'}});
-          if(!r.ok)continue;
-          const $=cheerio.load(await r.text());
-          $('a').each((_,a)=>{
-            let href=$(a).attr('href')||'';
-            if(href.startsWith('/url?q='))href=decodeURIComponent(href.slice(7).split('&')[0]);
-            if(!validHttpUrl(href,domain))return;
-            if(!href.includes('/Tender/Detail/'))return;
-            const title=clean($(a).text())||term;
-            const context=clean($(a).parent().text());
-            found.set(href,{url:href,title,description:context||title,discoveredBy:[term]});
-          });
-        }catch{}
-      }
-    }
-  }
-  return found;
 }
 
 async function portalListingLinks(s,browser){
@@ -128,7 +115,7 @@ async function portalListingLinks(s,browser){
   try{
     await page.goto(s.url,{waitUntil:'domcontentloaded',timeout:45000});
     await page.waitForTimeout(5000);
-    for(let p=0;p<10;p++){
+    for(let p=0;p<12;p++){
       const rows=await page.locator('a[href*="/Tender/Detail/"]').evaluateAll(as=>as.map(a=>({
         href:a.href,
         title:(a.innerText||a.textContent||'').trim(),
@@ -136,66 +123,72 @@ async function portalListingLinks(s,browser){
       })));
       for(const x of rows){
         if(!validHttpUrl(x.href,new URL(s.url).hostname))continue;
-        const base={
-          source:s.name,sourceId:s.id,url:x.href,
-          bidNumber:parseBidNumber(x.title+' '+x.context),
-          title:clean(x.title),description:clean(x.context),
-          openDate:extractDate(x.context,'opening'),
-          closing:extractDate(x.context,'closing'),
-          status:inferStatus(x.context),discoveredBy:['portal']
-        };
-        found.set(x.href,{...base,...score(base)});
+        const base=baseItem(s,x.href,x.title,x.context);
+        found.set(x.href,{...base,...score(base),discoveredBy:['portal']});
       }
       const next=page.locator('[aria-label*="Next" i]:visible,button:has-text("Next Page"):visible,a:has-text("Next Page"):visible').first();
       try{
         if(!(await next.count())||!(await next.isVisible())||!(await next.isEnabled()))break;
-        await next.click();await page.waitForTimeout(1200);
+        await next.click();await page.waitForTimeout(1000);
       }catch{break}
     }
-  } finally {await page.close()}
+  }finally{await page.close()}
   return found;
 }
 
-async function bidsListingFirst(s,browser){
-  const portal=await portalListingLinks(s,browser);
+async function rssTenderDiscovery(s,extra=[]){
   const domain=new URL(s.url).hostname;
-  const web=await searchEngineLinks(domain,SEARCH);
-  for(const [u,x] of web.entries()){
-    if(!portal.has(u)){
-      const base={
-        source:s.name,sourceId:s.id,url:u,
-        bidNumber:parseBidNumber(x.title+' '+x.description),
-        title:x.title,description:x.description,
-        openDate:extractDate(x.description,'opening'),
-        closing:extractDate(x.description,'closing'),
-        status:'unknown',discoveredBy:x.discoveredBy
-      };
-      portal.set(u,{...base,...score(base)});
+  const found=new Map();
+  for(const term of [...new Set([...SEARCH,...extra])]){
+    const rows=await bingRss(`site:${domain} "/Tender/Detail/" "${term}"`);
+    for(const x of rows){
+      if(!validHttpUrl(x.link,domain))continue;
+      if(!x.link.includes('/Tender/Detail/'))continue;
+      const base=baseItem(s,x.link,x.title||term,x.description||x.title||term);
+      const sc=score(base);
+      if(sc.score<20)continue;
+      found.set(x.link,{...base,...sc,discoveredBy:[term]});
     }
   }
+  return found;
+}
 
+async function hydrate(found,s,browser){
   const page=await browser.newPage({viewport:{width:1440,height:1400}});
   const out=[];
   try{
-    for(const item of portal.values()){
+    for(const item of found.values()){
       let detail={};
       try{
         await page.goto(item.url,{waitUntil:'domcontentloaded',timeout:45000});
         await page.waitForTimeout(700);
         const body=clean(await page.locator('body').innerText());
+        const title=(body.match(/Bid Name:\s*([^\n\r]+)/i)||[])[1]
+          ||(body.match(/Title\s*[:\-]\s*([^\n\r]+)/i)||[])[1]
+          ||item.title;
         detail={
           bidNumber:parseBidNumber(body)||item.bidNumber,
-          title:(body.match(/Bid Name:\s*([^\n\r]+)/i)||[])[1]||item.title,
-          description:body.slice(0,22000),
+          title:clean(title),
+          description:body.slice(0,24000),
           openDate:extractDate(body,'opening')||item.openDate,
           closing:extractDate(body,'closing')||item.closing,
-          status:inferStatus(body)!=='unknown'?inferStatus(body):item.status
+          status:inferStatus(body)
         };
       }catch{}
       out.push(mergeScores(item,detail));
     }
-  } finally {await page.close()}
+  }finally{await page.close()}
   return out;
+}
+
+async function bidsSource(s,browser){
+  const found=await portalListingLinks(s,browser);
+  const extra=s.id==='metrovan'
+    ? ['biosolids','biosolid','biosolids management','AIWWTP','wastewater','stormwater','environmental services','combined sewer overflow']
+    : [];
+  const rss=await rssTenderDiscovery(s,extra);
+  for(const [u,x] of rss.entries()) if(!found.has(u)) found.set(u,x);
+  return hydrate(found,s,browser);
 }
 
 async function bonfireSource(s,browser){
@@ -211,77 +204,64 @@ async function bonfireSource(s,browser){
       if(x.title.length<8||!validHttpUrl(x.href))continue;
       const text=(x.href+' '+x.context).toLowerCase();
       if(!/opportun|project|portal/.test(text)||out.some(y=>y.url===x.href))continue;
-      const base={
-        source:s.name,sourceId:s.id,bidNumber:parseBidNumber(x.context+' '+x.title),
-        title:clean(x.title),description:clean(x.context),url:x.href,
-        openDate:extractDate(x.context,'opening'),
-        closing:extractDate(x.context,'closing'),
-        status:inferStatus(x.context)
-      };
+      const base=baseItem(s,x.href,x.title,x.context);
       out.push({...base,...score(base)});
     }
     return out;
   }finally{await page.close()}
 }
 
-async function bcbidIndexed(s){
+async function bcBidSource(s){
   const found=new Map();
-  const broad=['biosolid','biosolids','wastewater','stormwater','environmental','sampling','risk assessment','water quality','remediation','PFAS','groundwater','sediment','effluent'];
-  const queries=[];
-  for(const term of broad) queries.push(`site:bcbid.gov.bc.ca "${term}" "Vancouver Island"`);
-  for(const org of BCORGS){
-    for(const term of ['environmental','wastewater','stormwater','biosolid','sampling','risk assessment','water quality','remediation']){
-      queries.push(`site:bcbid.gov.bc.ca "${org}" "${term}"`);
+
+  // First try real BC Bid indexed URLs.
+  for(const term of ['biosolid','biosolids','wastewater','stormwater','environmental','sampling','risk assessment','water quality','remediation','PFAS','groundwater','sediment','effluent']){
+    const rows=await bingRss(`site:bcbid.gov.bc.ca "${term}" "Vancouver Island"`);
+    for(const x of rows){
+      if(!validHttpUrl(x.link,'bcbid.gov.bc.ca'))continue;
+      const base=baseItem(s,x.link,x.title,x.description);
+      const sc=score(base);
+      if(sc.score>=20)found.set(x.link,{...base,...sc});
     }
   }
 
-  for(const q of queries){
-    for(const engine of [
-      `https://www.google.com/search?q=${encodeURIComponent(q)}`,
-      `https://www.bing.com/search?q=${encodeURIComponent(q)}`
-    ]){
-      try{
-        const r=await fetch(engine,{headers:{'user-agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/153 Safari/537.36'}});
-        if(!r.ok)continue;
-        const $=cheerio.load(await r.text());
-        $('a').each((_,a)=>{
-          let href=$(a).attr('href')||'';
-          if(href.startsWith('/url?q='))href=decodeURIComponent(href.slice(7).split('&')[0]);
-          if(!validHttpUrl(href,'bcbid.gov.bc.ca'))return;
-
-          const title=clean($(a).text());
-          const snippet=clean($(a).parent().parent().text())||clean($(a).parent().text())||title;
-          const base={
-            source:s.name,sourceId:s.id,bidNumber:parseBidNumber(title+' '+snippet),
-            title:title||snippet.slice(0,180),description:snippet,url:href,
-            openDate:extractDate(snippet,'opening'),
-            closing:extractDate(snippet,'closing'),
-            status:inferStatus(snippet)
-          };
+  // If BC Bid itself is poorly indexed, use public procurement mirrors to recover real BC public opportunities.
+  // We label them transparently as BC Bid / public index.
+  if(found.size<3){
+    const mirrorSource={...s,name:'BC Bid / public index'};
+    for(const org of BCORGS){
+      for(const term of ['environmental','wastewater','stormwater','biosolid','sampling','risk assessment','water quality','remediation']){
+        const rows=await bingRss(`"${org}" "${term}" (site:merx.com OR site:bcbid.gov.bc.ca)`);
+        for(const x of rows){
+          if(!validHttpUrl(x.link))continue;
+          if(!/merx\.com|bcbid\.gov\.bc\.ca/i.test(new URL(x.link).hostname))continue;
+          const combined=(x.title+' '+x.description).toLowerCase();
+          if(!combined.includes(org.toLowerCase()))continue;
+          const base=baseItem(mirrorSource,x.link,x.title,x.description);
           const sc=score(base);
-          if(sc.score>=20){
-            const key=(href+'|'+base.bidNumber+'|'+base.title).toLowerCase();
-            found.set(key,{...base,...sc});
-          }
-        });
-      }catch{}
+          if(sc.score>=20)found.set(x.link,{...base,...sc});
+        }
+      }
     }
   }
+
   return [...found.values()];
 }
 
 const browser=await chromium.launch({headless:true});
 const statuses=[],items=[];
+
 for(const s of cfg.sources){
   try{
     let rows=[],note='';
     if(s.type==='html')rows=await htmlSource(s);
-    else if(s.type==='bids_listing_first')rows=await bidsListingFirst(s,browser);
+    else if(s.type==='bids_listing_first')rows=await bidsSource(s,browser);
     else if(s.type==='bonfire')rows=await bonfireSource(s,browser);
     else if(s.type==='bcbid_indexed'){
-      rows=await bcbidIndexed(s);
-      if(!rows.length)note='No verified indexed BC Bid matches found in this run.';
+      rows=await bcBidSource(s);
+      if(!rows.length)note='No verified BC Bid or public-index matches found in this run.';
     }
+
     rows=rows.filter(x=>validHttpUrl(x.url));
     const relevant=rows.filter(x=>x.score>=20);
     items.push(...relevant);
