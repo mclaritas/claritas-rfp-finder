@@ -8,14 +8,15 @@ button,input,select{font:inherit;padding:10px 12px;border:1px solid #ccd4d9;bord
 .meta{font-size:13px;color:#66737d;display:flex;gap:14px;flex-wrap:wrap}.tag{display:inline-block;background:#edf1f2;border-radius:12px;padding:4px 8px;font-size:12px;margin:8px 5px 0 0}
 .high{color:#18794e;font-weight:700}.med{color:#9a6700;font-weight:700}.ok{color:#18794e}.limited{color:#9a6700}.error{color:#b42318}
 .status-open{color:#18794e;font-weight:700}.status-unknown{color:#9a6700;font-weight:700}.status-closed{color:#6b7280;font-weight:700}
-.bidnum{font-weight:700;color:#334155}details{background:#fff;border:1px solid #dce3e7;border-radius:8px;padding:12px;margin-top:20px}
+.bidnum{font-weight:700;color:#334155}.warning{background:#fff7ed;border:1px solid #fed7aa;padding:10px 12px;border-radius:7px;margin:12px 0}
+details{background:#fff;border:1px solid #dce3e7;border-radius:8px;padding:12px;margin-top:20px}
 </style></head><body><div class="wrap"><h1>Claritas RFP Finder</h1>
 <div class="sub">Environmental quality, monitoring, assessment, risk and management opportunities</div>
 <div class="toolbar"><button onclick="loadData(true)">Reload latest data</button><input id="q" oninput="render()" placeholder="Search results">
-<select id="threshold" onchange="render()"><option value="20">All relevant</option><option value="50">Good matches</option><option value="70" selected>Strong matches</option></select>
-<select id="statusFilter" onchange="render()"><option value="open" selected>Open only</option><option value="active">Open + status unknown</option><option value="all">All incl. closed</option></select></div>
-<div class="summary"><div class="box"><b id="count">0</b> displayed</div><div class="box"><b id="openCount">0</b> open matches</div><div class="box"><b id="strong">0</b> strong matches</div><div class="box" id="stamp">Loading…</div></div>
-<div id="msg" class="sub">Loading latest collected data…</div><div id="list"></div>
+<select id="threshold" onchange="render()"><option value="20">All relevant</option><option value="50" selected>Good matches</option><option value="70">Strong matches</option></select>
+<select id="statusFilter" onchange="render()"><option value="open">Open only</option><option value="active" selected>Open + status unknown</option><option value="all">All incl. closed</option></select></div>
+<div class="summary"><div class="box"><b id="count">0</b> displayed</div><div class="box"><b id="openCount">0</b> confirmed open</div><div class="box"><b id="strong">0</b> strong active matches</div><div class="box" id="stamp">Loading…</div></div>
+<div id="warnings"></div><div id="msg" class="sub">Loading latest collected data…</div><div id="list"></div>
 <details><summary><b>Source status</b></summary><div id="status"></div></details></div>
 <script>
 let DB={items:[],statuses:[],refreshedAt:null};
@@ -24,9 +25,11 @@ async function loadData(manual=false){try{const r=await fetch('data/results.json
 function render(){
  const q=document.getElementById('q').value.toLowerCase(),min=+document.getElementById('threshold').value,sf=document.getElementById('statusFilter').value;
  let rows=(DB.items||[]).filter(x=>x.score>=min);if(sf==='open')rows=rows.filter(x=>x.status==='open');if(sf==='active')rows=rows.filter(x=>x.status!=='closed');
- if(q)rows=rows.filter(x=>(x.bidNumber+' '+x.title+' '+x.source+' '+x.description+' '+(x.matches||[]).join(' ')).toLowerCase().includes(q));
+ if(q)rows=rows.filter(x=>((x.bidNumber||'')+' '+x.title+' '+x.source+' '+x.description+' '+(x.matches||[]).join(' ')).toLowerCase().includes(q));
  document.getElementById('count').textContent=rows.length;document.getElementById('openCount').textContent=(DB.items||[]).filter(x=>x.status==='open').length;document.getElementById('strong').textContent=(DB.items||[]).filter(x=>x.score>=70&&x.status!=='closed').length;
  document.getElementById('stamp').textContent=DB.refreshedAt?'Collected: '+new Date(DB.refreshedAt).toLocaleString():'No collection yet';
+ const bad=(DB.statuses||[]).filter(s=>s.status!=='ok');
+ document.getElementById('warnings').innerHTML=bad.length?`<div class="warning"><b>Collector notice:</b> ${bad.map(s=>esc(s.source)+': '+esc(s.note||s.status)).join(' | ')}</div>`:'';
  document.getElementById('list').innerHTML=rows.length?rows.map(x=>`<div class="card"><div class="${x.score>=70?'high':'med'}">${x.score}% fit</div>${x.bidNumber?`<div class="bidnum">${esc(x.bidNumber)}</div>`:''}<h2><a href="${esc(x.url)}" target="_blank">${esc(x.title)}</a></h2><div class="meta"><span>${esc(x.source)}</span><span class="status-${esc(x.status||'unknown')}">${esc(x.status||'unknown')}</span>${x.closing?`<span>Closing: ${esc(x.closing)}</span>`:''}</div><div>${(x.matches||[]).map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div></div>`).join(''):'<p>No opportunities meet this threshold/status filter.</p>';
  document.getElementById('status').innerHTML=(DB.statuses||[]).map(s=>`<p><span class="${esc(s.status)}"><b>${esc(s.source)}</b></span>: ${s.relevant??s.count??0} relevant, ${s.openCount||0} open${s.note?' — '+esc(s.note):''}</p>`).join('');
 }

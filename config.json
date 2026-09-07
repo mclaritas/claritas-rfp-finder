@@ -87,6 +87,27 @@
     "combined sewer overflow",
     "sanitary sewer overflow"
   ],
+  "bcbid_priority_organizations": [
+    "Capital Regional District",
+    "City of Victoria",
+    "City of Nanaimo",
+    "City of Parksville",
+    "Regional District of Nanaimo",
+    "Cowichan Valley Regional District",
+    "Comox Valley Regional District",
+    "City of Courtenay",
+    "City of Campbell River",
+    "City of Port Alberni",
+    "Alberni-Clayoquot Regional District",
+    "District of Saanich",
+    "Municipality of North Cowichan",
+    "Town of Ladysmith",
+    "Town of Qualicum Beach",
+    "District of Tofino",
+    "District of Ucluelet",
+    "Strathcona Regional District",
+    "Regional District of Mount Waddington"
+  ],
   "sources": [
     {
       "id": "rdn",
@@ -98,7 +119,7 @@
       "id": "nanaimo",
       "name": "City of Nanaimo",
       "url": "https://nanaimo.bidsandtenders.ca/Module/Tenders/en",
-      "type": "bids_search"
+      "type": "bids_multi"
     },
     {
       "id": "portalberni",
@@ -116,19 +137,19 @@
       "id": "comox",
       "name": "Comox Valley Regional District",
       "url": "https://comoxvalleyrd.bidsandtenders.ca/Module/Tenders/en",
-      "type": "bids_search"
+      "type": "bids_multi"
     },
     {
       "id": "bcbid",
       "name": "BC Bid \u2014 Vancouver Island",
       "url": "https://bcbid.gov.bc.ca/page.aspx/en/rfp/request_browse_public",
-      "type": "bcbid"
+      "type": "bcbid_public"
     },
     {
       "id": "metrovan",
       "name": "Metro Vancouver",
       "url": "https://metrovancouver.bidsandtenders.ca/Module/Tenders/en/Home/BidsHomepage",
-      "type": "metro_bids"
+      "type": "metro_multi"
     }
   ]
 }
