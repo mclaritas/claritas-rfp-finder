@@ -1,21 +1,6 @@
 {
-  "refreshedAt": "2026-09-08T12:39:42.495Z",
+  "refreshedAt": "2026-09-08T15:35:01.230Z",
   "items": [
-    {
-      "source": "Regional District of Nanaimo",
-      "sourceId": "rdn",
-      "url": "https://rdn.bc.ca/node/28407",
-      "bidNumber": "26-023",
-      "title": "26-023 Rivers Edge Water Quality Improvement ITT",
-      "description": "26-023 Rivers Edge Water Quality Improvement ITT | June 3, 2026 | July 9, 2026 | July 9, 2026 at 3:00 PM",
-      "openDate": "",
-      "closing": "",
-      "status": "unknown",
-      "score": 28,
-      "matches": [
-        "water quality"
-      ]
-    },
     {
       "source": "City of Port Alberni",
       "sourceId": "portalberni",
@@ -68,8 +53,8 @@
       "source": "Regional District of Nanaimo",
       "status": "ok",
       "note": "",
-      "discovered": 10,
-      "relevant": 1,
+      "discovered": 9,
+      "relevant": 0,
       "openCount": 0,
       "closedCount": 0
     },
