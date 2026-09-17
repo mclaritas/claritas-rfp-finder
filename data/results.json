@@ -1,6 +1,53 @@
 {
-  "refreshedAt": "2026-09-17T06:39:44.082Z",
-  "items": [],
+  "refreshedAt": "2026-09-17T09:33:30.271Z",
+  "items": [
+    {
+      "source": "City of Port Alberni",
+      "sourceId": "portalberni",
+      "url": "https://www.portalberni.ca/sites/default/files/pages/RFP021-25%20Results%20-%20REMP.pdf",
+      "bidNumber": "",
+      "title": "021-25 Results",
+      "description": "January 14, 2026 | RFP 021-25 | December 10, 2025 | Environmental Consulting Services & Receiving Environment Monitoring | Awarded | 021-25 Results",
+      "openDate": "",
+      "closing": "",
+      "status": "closed",
+      "score": 40,
+      "matches": [
+        "receiving environment",
+        "environmental consulting"
+      ]
+    },
+    {
+      "source": "City of Port Alberni",
+      "sourceId": "portalberni",
+      "url": "https://www.portalberni.ca/bid-opportunities",
+      "bidNumber": "",
+      "title": "UV Disinfection System WastewaterAddendum #1",
+      "description": "| RFP015-18 | May 2, 2018 | UV Disinfection System WastewaterAddendum #1 | Awarded |",
+      "openDate": "",
+      "closing": "",
+      "status": "closed",
+      "score": 28,
+      "matches": [
+        "wastewater"
+      ]
+    },
+    {
+      "source": "City of Port Alberni",
+      "sourceId": "portalberni",
+      "url": "https://www.portalberni.ca/sites/default/files/users/Kelly%20DeClercq/RFP%20021-24%20REMP%20Results.pdf",
+      "bidNumber": "",
+      "title": "RFP 021-24 Results",
+      "description": "June 11, 2024 | RFP 021-24 | May 16, 2024 | Environment Consulting Services & Receiving Environment MonitoringAddendum #1Addendum #2Addendum #3Addendum #4 | Awarded | RFP 021-24 Results",
+      "openDate": "",
+      "closing": "",
+      "status": "closed",
+      "score": 28,
+      "matches": [
+        "receiving environment"
+      ]
+    }
+  ],
   "statuses": [
     {
       "source": "Regional District of Nanaimo",
@@ -22,12 +69,12 @@
     },
     {
       "source": "City of Port Alberni",
-      "status": "error",
-      "note": "HTTP 404",
-      "discovered": 0,
-      "relevant": 0,
+      "status": "ok",
+      "note": "",
+      "discovered": 228,
+      "relevant": 10,
       "openCount": 0,
-      "closedCount": 0
+      "closedCount": 8
     },
     {
       "source": "Cowichan Valley Regional District",
