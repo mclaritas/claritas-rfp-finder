@@ -1,5 +1,5 @@
 {
-  "refreshedAt": "2026-09-18T18:33:25.424Z",
+  "refreshedAt": "2026-09-18T21:30:05.005Z",
   "items": [
     {
       "source": "City of Port Alberni",
@@ -53,7 +53,7 @@
       "source": "Regional District of Nanaimo",
       "status": "ok",
       "note": "",
-      "discovered": 9,
+      "discovered": 10,
       "relevant": 0,
       "openCount": 0,
       "closedCount": 0
