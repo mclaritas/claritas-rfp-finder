@@ -1,5 +1,5 @@
 {
-  "refreshedAt": "2026-10-09T18:25:55.794Z",
+  "refreshedAt": "2026-10-10T01:00:23.287Z",
   "items": [
     {
       "source": "Regional District of Nanaimo",
@@ -95,7 +95,7 @@
       "source": "Cowichan Valley Regional District",
       "status": "ok",
       "note": "",
-      "discovered": 12,
+      "discovered": 11,
       "relevant": 0,
       "openCount": 0,
       "closedCount": 0
