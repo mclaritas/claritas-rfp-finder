@@ -1,5 +1,5 @@
 {
-  "refreshedAt": "2026-10-20T23:58:38.885Z",
+  "refreshedAt": "2026-10-21T04:59:09.356Z",
   "items": [
     {
       "source": "Regional District of Nanaimo",
@@ -68,7 +68,7 @@
       "source": "Regional District of Nanaimo",
       "status": "ok",
       "note": "",
-      "discovered": 10,
+      "discovered": 9,
       "relevant": 1,
       "openCount": 0,
       "closedCount": 0
