@@ -1,21 +1,6 @@
 {
-  "refreshedAt": "2026-11-03T11:01:00.371Z",
+  "refreshedAt": "2026-11-03T19:35:05.806Z",
   "items": [
-    {
-      "source": "Regional District of Nanaimo",
-      "sourceId": "rdn",
-      "url": "https://rdn.bc.ca/node/28806",
-      "bidNumber": "26-036",
-      "title": "26-036 GNPCC Wastewater DAFT Polymer RFP",
-      "description": "26-036 GNPCC Wastewater DAFT Polymer RFP | September 29, 2026 | October 22, 2026 | November 3, 2026 at 3:00 PM",
-      "openDate": "",
-      "closing": "",
-      "status": "unknown",
-      "score": 28,
-      "matches": [
-        "wastewater"
-      ]
-    },
     {
       "source": "City of Port Alberni",
       "sourceId": "portalberni",
@@ -68,8 +53,8 @@
       "source": "Regional District of Nanaimo",
       "status": "ok",
       "note": "",
-      "discovered": 7,
-      "relevant": 1,
+      "discovered": 0,
+      "relevant": 0,
       "openCount": 0,
       "closedCount": 0
     },
