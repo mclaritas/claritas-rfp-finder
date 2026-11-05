@@ -1,5 +1,5 @@
 {
-  "refreshedAt": "2026-11-04T19:53:05.842Z",
+  "refreshedAt": "2026-11-05T01:30:48.669Z",
   "items": [
     {
       "source": "City of Port Alberni",
@@ -80,7 +80,7 @@
       "source": "Cowichan Valley Regional District",
       "status": "ok",
       "note": "",
-      "discovered": 12,
+      "discovered": 11,
       "relevant": 0,
       "openCount": 0,
       "closedCount": 0
